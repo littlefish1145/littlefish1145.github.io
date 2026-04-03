@@ -1,7 +1,6 @@
 ---
 // ContactModal.astro - Apple-style contact form modal
 ---
-<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <div
 	id="contact-modal"
@@ -43,7 +42,7 @@
 				rows="4"
 				class="w-full rounded-lg border border-zinc-200 px-4 py-3 text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 resize-none"
 			></textarea>
-			<div class="cf-turnstile" data-sitekey="0x4AAAAAACuzV-RCNNfHJxdF"></div>
+			<div id="contact-turnstile-container" data-sitekey="0x4AAAAAACuzV-RCNNfHJxdF"></div>
 			<button
 				type="submit"
 				id="contact-submit"
@@ -87,16 +86,50 @@
 	const emailInput = document.getElementById('contact-email-input') as HTMLInputElement;
 	const messageInput = document.getElementById('contact-message-input') as HTMLTextAreaElement;
 	const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement;
+	const turnstileContainer = document.getElementById('contact-turnstile-container');
 
-	function getTurnstileToken(): string {
-		if (typeof (window as any).turnstile !== 'undefined') {
-			const widgets = document.querySelectorAll('.cf-turnstile');
-			for (let i = 0; i < widgets.length; i++) {
-				const token = (window as any).turnstile.getResponse(i);
-				if (token) return token;
+	let turnstileWidgetId: string | null = null;
+
+	// Load Turnstile script and render widget
+	function initTurnstile() {
+		if (typeof (window as any).turnstile !== 'undefined' && turnstileContainer && !turnstileWidgetId) {
+			const sitekey = turnstileContainer.getAttribute('data-sitekey');
+			if (sitekey) {
+				turnstileWidgetId = (window as any).turnstile.render(turnstileContainer, {
+					sitekey: sitekey,
+					callback: function(token: string) {
+						console.log('Contact Turnstile token obtained');
+					},
+					'error-callback': function() {
+						console.log('Contact Turnstile error');
+					},
+				});
 			}
 		}
+	}
+
+	// Get token from specific widget
+	function getTurnstileToken(): string {
+		if (typeof (window as any).turnstile !== 'undefined' && turnstileWidgetId) {
+			return (window as any).turnstile.getResponse(turnstileWidgetId) || '';
+		}
 		return '';
+	}
+
+	// Load Turnstile script
+	function loadTurnstileScript(): Promise<void> {
+		return new Promise((resolve) => {
+			if (typeof (window as any).turnstile !== 'undefined') {
+				resolve();
+				return;
+			}
+			const script = document.createElement('script');
+			script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+			script.async = true;
+			script.defer = true;
+			script.onload = () => resolve();
+			document.head.appendChild(script);
+		});
 	}
 
 	if (form) {
@@ -119,7 +152,7 @@
 			submitBtn.disabled = true;
 			submitBtn.textContent = 'Sending...';
 
-			// Wait for Turnstile
+			// Wait for Turnstile token
 			let attempts = 0;
 			while (attempts < 20) {
 				const token = getTurnstileToken();
@@ -156,7 +189,11 @@
 
 		if (!modal || !modalClose) return;
 
-		const openModal = () => {
+		const openModal = async () => {
+			// Load Turnstile if not loaded
+			await loadTurnstileScript();
+			initTurnstile();
+
 			requestAnimationFrame(() => {
 				modal.classList.remove('opacity-0', 'invisible');
 				modal.classList.add('opacity-100');
