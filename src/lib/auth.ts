@@ -12,6 +12,7 @@ export interface User {
 	login?: string;
 	name?: string;
 	profileUrl?: string;
+	isAdmin?: boolean;
 }
 
 /**
@@ -77,6 +78,7 @@ export async function getUser(): Promise<User | null> {
 			login: user.login ?? '',
 			name: user.name ?? '',
 			profileUrl: user.profileUrl ?? user.profile_url ?? '',
+			isAdmin: user.isAdmin ?? false,
 		};
 	} catch {
 		return null;
