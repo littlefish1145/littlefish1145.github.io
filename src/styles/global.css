@@ -28,6 +28,9 @@
 	@media (pointer: fine) {
 		html.has-custom-cursor,
 		html.has-custom-cursor body,
+		html.has-custom-cursor *,
+		html.has-custom-cursor *::before,
+		html.has-custom-cursor *::after,
 		html.has-custom-cursor a,
 		html.has-custom-cursor button,
 		html.has-custom-cursor input,
@@ -452,35 +455,35 @@ html.dark:hover::-webkit-scrollbar-thumb {
 		position: fixed;
 		left: 0;
 		top: 0;
-		width: 10px;
-		height: 10px;
+		width: 9px;
+		height: 9px;
 		border-radius: 999px;
 		pointer-events: none;
 		z-index: 9999;
 		opacity: 0;
-		transform: translate3d(-50%, -50%, 0) scale(0.92);
+		transform: translate3d(-50%, -50%, 0) scale(0.96);
 		background: rgba(24, 24, 27, 0.96);
 		will-change: transform, width, height, opacity;
 		transition:
-			width 150ms cubic-bezier(0.22, 1.18, 0.32, 1),
-			height 150ms cubic-bezier(0.22, 1.18, 0.32, 1),
-			border-radius 120ms cubic-bezier(0.22, 1, 0.36, 1),
-			opacity 100ms ease,
-			background-color 120ms ease;
+			width 120ms cubic-bezier(0.22, 1.18, 0.32, 1),
+			height 120ms cubic-bezier(0.22, 1.18, 0.32, 1),
+			border-radius 100ms cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 90ms ease,
+			background-color 100ms ease;
 	}
 
 	.app-cursor::before {
 		content: '';
 		position: absolute;
-		inset: -8px;
+		inset: -7px;
 		border-radius: inherit;
 		border: 1px solid rgba(24, 24, 27, 0.16);
 		opacity: 0;
-		transform: scale(0.72);
+		transform: scale(0.8);
 		transition:
-			opacity 120ms ease,
-			transform 180ms cubic-bezier(0.22, 1.18, 0.32, 1),
-			border-color 120ms ease;
+			opacity 100ms ease,
+			transform 130ms cubic-bezier(0.22, 1.18, 0.32, 1),
+			border-color 100ms ease;
 	}
 
 	.app-cursor.is-visible {
@@ -488,8 +491,8 @@ html.dark:hover::-webkit-scrollbar-thumb {
 	}
 
 	.app-cursor.is-clickable {
-		width: 14px;
-		height: 14px;
+		width: 12px;
+		height: 12px;
 		background: rgba(24, 24, 27, 0.92);
 	}
 
@@ -500,7 +503,7 @@ html.dark:hover::-webkit-scrollbar-thumb {
 
 	.app-cursor.is-text {
 		width: 3px;
-		height: 22px;
+		height: 20px;
 		border-radius: 999px;
 		background: rgba(24, 24, 27, 0.92);
 	}
@@ -510,18 +513,18 @@ html.dark:hover::-webkit-scrollbar-thumb {
 	}
 
 	.app-cursor.is-pressed {
-		width: 8px;
-		height: 8px;
+		width: 7px;
+		height: 7px;
 	}
 
 	.app-cursor.is-clickable.is-pressed {
-		width: 11px;
-		height: 11px;
+		width: 10px;
+		height: 10px;
 	}
 
 	.app-cursor.is-text.is-pressed {
 		width: 3px;
-		height: 18px;
+		height: 17px;
 	}
 
 	html.dark .app-cursor {
