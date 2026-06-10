@@ -6,7 +6,6 @@
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import type { ImageMetadata } from 'astro';
-import FallbackImage from '../assets/blog-placeholder-1.jpg';
 import { SITE_TITLE } from '../consts';
 
 interface Props {
@@ -14,14 +13,18 @@ interface Props {
 	title: string;
 	// Summary used by search/social cards and meta description.
 	description: string;
-	// Optional social preview image; falls back to a local placeholder for consistency.
-	image?: ImageMetadata;
+	// Optional social preview image; falls back to the branded OG card.
+	image?: ImageMetadata | string;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = FallbackImage } = Astro.props;
+const { title, description, image } = Astro.props;
 const BASE = import.meta.env.BASE_URL;
+// Branded share card (1200x630) is the default for Discord/Twitter/OG previews.
+const usesDefaultOgImage = !image;
+const ogImagePath = typeof image === 'string' ? image : image?.src ?? `${BASE}image/og-default.png`;
+const ogImageURL = new URL(ogImagePath, Astro.url);
 const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 ---
 
@@ -30,8 +33,12 @@ const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <!-- Keep View Transitions globally enabled so only targeted links/routes opt out when needed. -->
 <ClientRouter />
+<!-- Favicon set generated from the original avatar (scripts/generate-brand-assets.mjs). -->
 <link rel="icon" type="image/x-icon" href={`${BASE}image/favicon.ico`} />
 <link rel="shortcut icon" href={`${BASE}image/favicon.ico`} />
+<link rel="icon" type="image/png" sizes="32x32" href={`${BASE}image/favicon-32.png`} />
+<link rel="icon" type="image/svg+xml" href={`${BASE}favicon.svg`} />
+<link rel="apple-touch-icon" sizes="180x180" href={`${BASE}image/apple-touch-icon.png`} />
 <link rel="sitemap" href={`${BASE}sitemap-index.xml`} />
 <link
 	rel="alternate"
@@ -67,6 +74,11 @@ const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 	rel="stylesheet"
 	href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Serif+SC:wght@400;600&display=swap"
 />
+<!-- Brand wordmark face, subset to the exact glyphs of "Dan's Blog" (~few KB). -->
+<link
+	rel="stylesheet"
+	href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&text=Dan%27s%20Blog%E2%80%99&display=swap"
+/>
 <!-- Code font is optional to avoid post-paint metric swaps on large code blocks. -->
 <link
 	rel="stylesheet"
@@ -82,19 +94,26 @@ const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 <meta name="description" content={description} />
 <meta name="google-site-verification" content="c9eLQFflOQPGAa5ykLn2PnyXDt5rup4VJNQe3P8hW7Y" />
 
-<!-- Open Graph / Facebook -->
+<!-- Open Graph / Facebook / Discord -->
 <meta property="og:type" content="website" />
+<meta property="og:site_name" content={SITE_TITLE} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image.src, Astro.url)} />
+<meta property="og:image" content={ogImageURL} />
+{usesDefaultOgImage && <meta property="og:image:width" content="1200" />}
+{usesDefaultOgImage && <meta property="og:image:height" content="630" />}
+{usesDefaultOgImage && <meta property="og:image:alt" content="Dan's Blog — Research · Engineering · Notes" />}
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:url" content={Astro.url} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image.src, Astro.url)} />
+<meta property="twitter:image" content={ogImageURL} />
+
+<!-- Browser chrome tinting; kept in sync with the user-chosen theme by script. -->
+<meta name="theme-color" content="#fafafa" />
 
 <script is:inline>
 	(() => {
@@ -106,6 +125,14 @@ const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 		const theme = stored === 'dark' || stored === 'light' ? stored : systemPrefersDark ? 'dark' : 'light';
 		root.classList.toggle('dark', theme === 'dark');
 		root.dataset.theme = theme;
+
+		// Browser chrome color must follow the site theme (which can differ from
+		// the OS preference), so it is synced here and on every toggle.
+		window.__syncThemeColor = (isDark) => {
+			const meta = document.querySelector('meta[name="theme-color"]');
+			if (meta) meta.setAttribute('content', isDark ? '#09090b' : '#fafafa');
+		};
+		window.__syncThemeColor(theme === 'dark');
 	})();
 </script>
 <script is:inline>
@@ -215,6 +242,11 @@ const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 </script>
 <script is:inline>
 	(() => {
+		// Run once per browsing session: re-executing would stack a second
+		// MutationObserver and duplicate pointer listeners on document.
+		if (window.__cursorScriptInit) return;
+		window.__cursorScriptInit = true;
+
 		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		const supportsFinePointer = window.matchMedia('(pointer: fine)').matches;
 		if (prefersReducedMotion || !supportsFinePointer) return;
@@ -462,6 +494,104 @@ const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 		}
 
 		initCursor();
+	})();
+</script>
+<script is:inline>
+	(() => {
+		/*
+		 * Polish-layer interactions shared by every page:
+		 * 1. scroll-triggered reveal for [data-reveal] elements
+		 * 2. pointer-tracking spotlight position for .card-spotlight elements
+		 * Both are progressive enhancements: without JS (or with reduced motion)
+		 * content stays fully visible and cards simply skip the glow.
+		 * Guarded so re-execution never duplicates document-level listeners.
+		 */
+		if (window.__polishScriptInit) return;
+		window.__polishScriptInit = true;
+
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		if (!reducedMotion && 'IntersectionObserver' in window) {
+			document.documentElement.classList.add('js-reveal');
+
+			let observer = null;
+			const ensureObserver = () => {
+				if (observer) return observer;
+				observer = new IntersectionObserver(
+					(entries) => {
+						for (const entry of entries) {
+							if (!entry.isIntersecting) continue;
+							entry.target.classList.add('revealed');
+							observer.unobserve(entry.target);
+						}
+					},
+					{ rootMargin: '0px 0px -7% 0px', threshold: 0.06 }
+				);
+				return observer;
+			};
+
+			const scanReveals = () => {
+				// Route swaps can reset the <html> class attribute, so re-assert before scanning.
+				document.documentElement.classList.add('js-reveal');
+				const io = ensureObserver();
+				document.querySelectorAll('[data-reveal]:not(.revealed)').forEach((el) => io.observe(el));
+			};
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', scanReveals, { once: true });
+			} else {
+				scanReveals();
+			}
+			document.addEventListener('astro:page-load', scanReveals);
+			document.addEventListener('astro:after-swap', scanReveals);
+		}
+
+		// Directional page transitions: slide left/right based on nav order.
+		// The data attribute is consumed by ::view-transition CSS in global.css.
+		{
+			const NAV_ORDER = { '': 0, blog: 1, tags: 2, links: 3, about: 4 };
+			const segmentFor = (url) => {
+				const parts = url.pathname.split('/').filter(Boolean).filter((p) => p !== 'DansBlog');
+				return parts[0] || '';
+			};
+
+			document.addEventListener('astro:before-preparation', (event) => {
+				const root = document.documentElement;
+				delete root.dataset.navDir;
+				try {
+					const fromIdx = NAV_ORDER[segmentFor(event.from)];
+					const toIdx = NAV_ORDER[segmentFor(event.to)];
+					if (fromIdx === undefined || toIdx === undefined || fromIdx === toIdx) return;
+					root.dataset.navDir = toIdx > fromIdx ? 'forward' : 'back';
+				} catch {}
+			});
+		}
+
+		if (window.matchMedia('(pointer: fine)').matches) {
+			let rafId = 0;
+			let lastEvent = null;
+
+			const applySpotlight = () => {
+				rafId = 0;
+				const event = lastEvent;
+				if (!event) return;
+				const card = event.target instanceof Element ? event.target.closest('.card-spotlight') : null;
+				if (!card) return;
+				const rect = card.getBoundingClientRect();
+				card.style.setProperty('--spot-x', `${event.clientX - rect.left}px`);
+				card.style.setProperty('--spot-y', `${event.clientY - rect.top}px`);
+			};
+
+			document.addEventListener(
+				'pointermove',
+				(event) => {
+					if (event.pointerType && event.pointerType !== 'mouse') return;
+					lastEvent = event;
+					if (!rafId) rafId = requestAnimationFrame(applySpotlight);
+				},
+				{ passive: true }
+			);
+		}
 	})();
 </script>
 {

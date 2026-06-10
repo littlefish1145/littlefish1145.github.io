@@ -167,7 +167,7 @@ const currentView = isImportant ? 'important' : isArchive ? 'archive' : 'latest'
 							{displayPosts.length > 0 ? (
 								<ul class="grid gap-4">
 									{displayPosts.map((post, idx) => (
-										<li class="card-enter relative" style={`animation-delay: ${90 + idx * 40}ms`}>
+										<li class="relative" data-reveal style={`--reveal-delay: ${Math.min(idx * 60, 180)}ms`}>
 											<PostCard post={post} base={BASE} maxMobile={3} maxDesktop={null} reloadOnNavigate={true} />
 										</li>
 									))}
@@ -188,7 +188,7 @@ const currentView = isImportant ? 'important' : isArchive ? 'archive' : 'latest'
 						<div role="tabpanel">
 							<ul class="grid gap-4">
 								{displayPosts.map((post, idx) => (
-									<li class="card-enter relative" style={`animation-delay: ${90 + idx * 40}ms`}>
+									<li class="relative" data-reveal style={`--reveal-delay: ${Math.min(idx * 60, 180)}ms`}>
 										<PostCard post={post} base={BASE} maxMobile={3} maxDesktop={null} reloadOnNavigate={true} />
 									</li>
 								))}

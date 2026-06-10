@@ -67,12 +67,16 @@ const charsLabel = chars.toLocaleString('en-US');
 		<BaseHead title={`${title} | Dan's Blog`} description={description} />
 	</head>
 	<body>
+		<!-- Optional decorative background layer (e.g. the About page meteor shower). -->
+		<slot name="background" />
+		<!-- Scroll-driven reading progress; hidden automatically where unsupported. -->
+		<div class="reading-progress" aria-hidden="true"></div>
 		<Header showTocButton={hasToc} />
 		<MobileDrawer />
 		<TocDrawer headings={tocItems} />
 
 		<!-- Page fade is CSS-driven so route changes remain smooth even when shared-element transitions are bypassed. -->
-		<main class="blog-post-page page-fade-in min-h-screen min-w-0 w-full py-10 md:py-14" transition:animate="fade">
+		<main class="blog-post-page page-fade-in min-h-screen min-w-0 w-full py-10 md:py-14" transition:name="page-main" transition:animate="fade">
 			<div class:list={[
 				'mx-auto min-w-0 px-4 sm:px-6 lg:px-8',
 				metaMode === 'page' ? 'max-w-4xl' : 'max-w-7xl',
@@ -226,14 +230,15 @@ const charsLabel = chars.toLocaleString('en-US');
 										{relatedPostsLang === 'cn' ? '相关推荐' : 'Related Posts'}
 									</h2>
 									<div class="grid gap-4 sm:grid-cols-2">
-										{relatedPosts.map((relatedPost) => {
+										{relatedPosts.map((relatedPost, relatedIdx) => {
 											const postUrl = `${BASE}blog/${relatedPost.id}/`;
 											const postTags = (relatedPost.data.tags ?? []).slice(0, 3);
 											const relatedAnalyticsKey = getPostAnalyticsKey(relatedPost);
 											return (
+												<div data-reveal style={`--reveal-delay: ${(relatedIdx % 2) * 80}ms`}>
 												<a
 													href={postUrl}
-													class="group relative block rounded-xl border border-zinc-200 bg-white p-4 transition-all duration-200 hover:border-zinc-300 hover:shadow-lg hover:-translate-y-0.5 dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+													class="card-spotlight group relative block h-full rounded-xl border border-zinc-200 bg-white p-4 transition-all duration-200 hover:border-zinc-300 hover:shadow-lg hover:-translate-y-0.5 dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
 												>
 													<h3 class="font-semibold text-zinc-900 transition-colors group-hover:text-orange-600 dark:text-zinc-100 dark:group-hover:text-orange-400">
 														{relatedPost.data.title}
@@ -262,6 +267,7 @@ const charsLabel = chars.toLocaleString('en-US');
 														</span>
 													</div>
 												</a>
+												</div>
 											);
 										})}
 									</div>
@@ -279,9 +285,20 @@ const charsLabel = chars.toLocaleString('en-US');
 
 		<Footer />
 
+		<button type="button" class="back-to-top" data-back-to-top aria-label="Back to top">
+			<svg class="back-to-top-ring" viewBox="0 0 48 48" aria-hidden="true">
+				<circle class="back-to-top-track" cx="24" cy="24" r="21" />
+				<circle class="back-to-top-progress" cx="24" cy="24" r="21" data-back-to-top-progress />
+			</svg>
+			<svg class="back-to-top-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+				<path d="M12 19V5" stroke-linecap="round" />
+				<path d="m5 12 7-7 7 7" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</button>
+
 		<div
 			id="img-lightbox"
-			class="fixed inset-0 z-[999] hidden items-center justify-center overflow-auto bg-black/70 p-4 md:p-8 dark:bg-black/80"
+			class="fixed inset-0 z-[999] hidden items-center justify-center overflow-auto bg-black/65 p-4 backdrop-blur-md md:p-8 dark:bg-black/75"
 			aria-hidden="true"
 		>
 			<button
@@ -295,12 +312,18 @@ const charsLabel = chars.toLocaleString('en-US');
 					<path d="M6.7 5.3a1 1 0 0 0-1.4 1.4L10.6 12l-5.3 5.3a1 1 0 1 0 1.4 1.4l5.3-5.3 5.3 5.3a1 1 0 1 0 1.4-1.4L13.4 12l5.3-5.3a1 1 0 0 0-1.4-1.4L12 10.6 6.7 5.3Z" />
 				</svg>
 			</button>
-			<img
-				id="img-lightbox-target"
-				src=""
-				alt=""
-				class="mx-auto block h-auto max-h-[92dvh] max-w-[92vw] rounded-xl object-contain shadow-lg"
-			/>
+			<figure class="m-0 flex max-w-full flex-col items-center gap-3">
+				<img
+					id="img-lightbox-target"
+					src=""
+					alt=""
+					class="mx-auto block h-auto max-h-[88dvh] max-w-[92vw] rounded-xl object-contain shadow-2xl"
+				/>
+				<figcaption
+					id="img-lightbox-caption"
+					class="max-w-[78vw] text-center font-sans text-[13px] leading-6 text-zinc-300 empty:hidden"
+				></figcaption>
+			</figure>
 		</div>
 
 		<style is:global>
@@ -609,34 +632,48 @@ const charsLabel = chars.toLocaleString('en-US');
 				const getLightboxElements = () => {
 					const overlay = document.getElementById('img-lightbox');
 					const target = document.getElementById('img-lightbox-target');
-					return { overlay, target };
+					const caption = document.getElementById('img-lightbox-caption');
+					return { overlay, target, caption };
 				};
 
 				const closeLightbox = () => {
-					const { overlay, target } = getLightboxElements();
+					const { overlay, target, caption } = getLightboxElements();
 					if (!overlay || !target || overlay.classList.contains('hidden')) return;
+					if (overlay.classList.contains('is-closing')) return;
 
-					overlay.classList.add('hidden');
-					overlay.classList.remove('flex');
-					overlay.setAttribute('aria-hidden', 'true');
-					target.setAttribute('src', '');
-					target.setAttribute('alt', '');
+					const finishClose = () => {
+						overlay.classList.add('hidden');
+						overlay.classList.remove('flex', 'is-closing');
+						overlay.setAttribute('aria-hidden', 'true');
+						target.setAttribute('src', '');
+						target.setAttribute('alt', '');
+						if (caption) caption.textContent = '';
 
-					if (isBodyLocked) {
-						document.body.style.position = bodyStyleBeforeLock.position;
-						document.body.style.top = bodyStyleBeforeLock.top;
-						document.body.style.left = bodyStyleBeforeLock.left;
-						document.body.style.right = bodyStyleBeforeLock.right;
-						document.body.style.width = bodyStyleBeforeLock.width;
-						document.body.style.overflow = bodyStyleBeforeLock.overflow;
-						window.scrollTo(0, lockedScrollY);
-						isBodyLocked = false;
+						if (isBodyLocked) {
+							document.body.style.position = bodyStyleBeforeLock.position;
+							document.body.style.top = bodyStyleBeforeLock.top;
+							document.body.style.left = bodyStyleBeforeLock.left;
+							document.body.style.right = bodyStyleBeforeLock.right;
+							document.body.style.width = bodyStyleBeforeLock.width;
+							document.body.style.overflow = bodyStyleBeforeLock.overflow;
+							window.scrollTo(0, lockedScrollY);
+							isBodyLocked = false;
+						}
+					};
+
+					// Brief fade-out unless the user prefers reduced motion.
+					if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+						finishClose();
+						return;
 					}
+					overlay.classList.add('is-closing');
+					window.setTimeout(finishClose, 180);
 				};
 
 				const openLightbox = (src, altText) => {
-					const { overlay, target } = getLightboxElements();
+					const { overlay, target, caption } = getLightboxElements();
 					if (!overlay || !target || !src) return;
+					if (caption) caption.textContent = altText || '';
 
 					if (!isBodyLocked) {
 						lockedScrollY = window.scrollY;
@@ -668,7 +705,8 @@ const charsLabel = chars.toLocaleString('en-US');
 
 					const { overlay } = getLightboxElements();
 					if (overlay && !overlay.classList.contains('hidden')) {
-						if (rawTarget === overlay || rawTarget.closest('[data-lightbox-close]')) {
+						// Any click inside the open lightbox dismisses it (image included).
+						if (overlay.contains(rawTarget)) {
 							event.preventDefault();
 							closeLightbox();
 							return;
@@ -709,6 +747,53 @@ const charsLabel = chars.toLocaleString('en-US');
 				}
 			};
 
+			const initBackToTop = () => {
+				const button = document.querySelector('[data-back-to-top]');
+				if (!(button instanceof HTMLElement)) return;
+
+				const ring = button.querySelector('[data-back-to-top-progress]');
+				const circumference = 2 * Math.PI * 21;
+				if (ring instanceof SVGElement) {
+					ring.style.strokeDasharray = String(circumference);
+					ring.style.strokeDashoffset = String(circumference);
+				}
+
+				let rafId = 0;
+				const update = () => {
+					rafId = 0;
+					const doc = document.documentElement;
+					const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+					const progress = Math.min(1, Math.max(0, window.scrollY / max));
+					button.classList.toggle('is-visible', window.scrollY > 480);
+					if (ring instanceof SVGElement) {
+						ring.style.strokeDashoffset = String(circumference * (1 - progress));
+					}
+				};
+				const schedule = () => {
+					if (!rafId) rafId = requestAnimationFrame(update);
+				};
+
+				if (button.dataset.bound !== 'true') {
+					button.dataset.bound = 'true';
+					button.addEventListener('click', () => {
+						const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+						window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+					});
+				}
+
+				// Scroll/resize listeners bind once and dispatch to the current page's handler.
+				window.__backToTopSchedule = schedule;
+				if (window.__backToTopScrollBound !== true) {
+					window.__backToTopScrollBound = true;
+					const dispatch = () => {
+						if (typeof window.__backToTopSchedule === 'function') window.__backToTopSchedule();
+					};
+					window.addEventListener('scroll', dispatch, { passive: true });
+					window.addEventListener('resize', dispatch);
+				}
+				update();
+			};
+
 			const onPostPageLoad = () => {
 				// Centralize post-page bootstrapping so astro:page-load and astro:after-swap stay identical.
 				resetPageScrollLocks();
@@ -716,6 +801,7 @@ const charsLabel = chars.toLocaleString('en-US');
 				initTocActiveState();
 				initTocScrollFades();
 				initImageLightbox();
+				initBackToTop();
 				loadPostViews();
 				loadRelatedPostViews();
 			};

@@ -1,5 +1,7 @@
 ﻿---
 import Layout from '../layouts/BlogPost.astro';
+import GoldenSpiral from '../components/GoldenSpiral.astro';
+import MeteorShower from '../components/MeteorShower.astro';
 import TerminalQuote from '../components/TerminalQuote.astro';
 
 const nowText =
@@ -14,6 +16,10 @@ const nowText =
 	heroImage="https://img.danarnoux.com/misc/about-image.webp"
 	profileImage="https://img.danarnoux.com/misc/DanArnoux.webp"
 >
+	<Fragment slot="background">
+		<GoldenSpiral />
+		<MeteorShower density={1.8} heightVh={60} />
+	</Fragment>
 	<div class="mx-auto max-w-3xl">
 		<p>
 			I am DanArnoux (符笙), an energy engineering student from China. I care about practical

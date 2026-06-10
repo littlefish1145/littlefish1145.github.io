@@ -1,6 +1,7 @@
 ﻿---
 import { GITHUB_URL, SITE_TITLE } from '../consts';
 import { getNavLinks } from '../data/navLinks';
+import BrandMark from './BrandMark.astro';
 import HeaderLink from './HeaderLink.astro';
 import LoginModal from './LoginModal.astro';
 import SettingsModal from './SettingsModal.astro';
@@ -22,7 +23,7 @@ const NAV_LINKS = getNavLinks(BASE);
 const { showTocButton = false } = Astro.props as Props;
 ---
 
-<header class="sticky top-0 z-50 border-b border-zinc-200/70 bg-zinc-50/72 backdrop-blur-xl transition-colors duration-200 dark:border-zinc-800/80 dark:bg-zinc-950/72">
+<header class="site-header sticky top-0 z-50 border-b border-zinc-200/70 bg-zinc-50/72 backdrop-blur-xl transition-colors duration-200 dark:border-zinc-800/80 dark:bg-zinc-950/72">
 	<nav class="page-shell flex h-16 items-center justify-between gap-4">
 		<div class="flex items-center gap-6">
 			<!-- Stable trigger ID consumed by MobileDrawer script. -->
@@ -57,9 +58,10 @@ const { showTocButton = false } = Astro.props as Props;
 				)
 			}
 			<a href={`${BASE}`} class="group hidden no-underline md:inline" aria-label={SITE_TITLE}>
-				<span class="inline-flex items-baseline gap-1.5 rounded-full border border-zinc-200/75 bg-white/70 px-3 py-1.5 text-[0.92rem] font-medium tracking-[-0.035em] text-zinc-800 shadow-[0_8px_20px_rgba(15,23,42,0.04)] backdrop-blur-md transition-all duration-200 group-hover:border-zinc-300/95 group-hover:bg-white/92 group-hover:text-zinc-950 dark:border-zinc-700/75 dark:bg-zinc-900/68 dark:text-zinc-100 dark:shadow-[0_8px_18px_rgba(0,0,0,0.16)] dark:group-hover:border-zinc-500/95 dark:group-hover:bg-zinc-800/92">
-					<span class="font-semibold tracking-[-0.05em]">Dan's</span>
-					<span class="font-serif text-[0.98rem] italic tracking-[-0.04em] text-zinc-500 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-400 dark:group-hover:text-zinc-200">Blog</span>
+				<span class="brand-wordmark inline-flex items-center gap-1.5 rounded-full border border-zinc-200/75 bg-white/70 px-3 py-1.5 text-zinc-800 shadow-[0_8px_20px_rgba(15,23,42,0.04)] backdrop-blur-md transition-all duration-200 group-hover:border-zinc-300/95 group-hover:bg-white/92 group-hover:text-zinc-950 dark:border-zinc-700/75 dark:bg-zinc-900/68 dark:text-zinc-100 dark:shadow-[0_8px_18px_rgba(0,0,0,0.16)] dark:group-hover:border-zinc-500/95 dark:group-hover:bg-zinc-800/92">
+					<BrandMark class="h-[1.2em] -ml-0.5" />
+					<span class="text-[1.06rem] leading-none">Dan<span class="brand-apostrophe">&rsquo;</span>s</span>
+					<span class="text-[1.06rem] italic leading-none text-zinc-500 transition-colors duration-200 group-hover:text-zinc-700 dark:text-zinc-400 dark:group-hover:text-zinc-200">Blog</span>
 				</span>
 			</a>
 			<div class="hidden items-center gap-1 text-sm md:flex">
@@ -513,6 +515,8 @@ const { showTocButton = false } = Astro.props as Props;
 				: (systemPrefersDark ? 'dark' : 'light');
 			root.classList.toggle('dark', theme === 'dark');
 			root.dataset.theme = theme;
+			// Route swaps restore the static head, so re-sync the browser chrome color.
+			if (typeof window.__syncThemeColor === 'function') window.__syncThemeColor(theme === 'dark');
 			return theme === 'dark';
 		};
 
@@ -530,11 +534,52 @@ const { showTocButton = false } = Astro.props as Props;
 		buttons.forEach((button) => {
 			if (button.dataset.bound === 'true') return;
 			button.dataset.bound = 'true';
-			button.addEventListener('click', () => {
-				const isDark = root.classList.toggle('dark');
-				root.dataset.theme = isDark ? 'dark' : 'light';
-				localStorage.setItem(storageKey, isDark ? 'dark' : 'light');
-				updateAria();
+			button.addEventListener('click', (event) => {
+				const applyTheme = () => {
+					const isDark = root.classList.toggle('dark');
+					root.dataset.theme = isDark ? 'dark' : 'light';
+					localStorage.setItem(storageKey, isDark ? 'dark' : 'light');
+					if (typeof window.__syncThemeColor === 'function') window.__syncThemeColor(isDark);
+					updateAria();
+				};
+
+				const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+				if (typeof document.startViewTransition !== 'function' || reducedMotion) {
+					applyTheme();
+					return;
+				}
+
+				// Expand the new theme as a circle from the click point for a tactile switch feel.
+				const rect = button.getBoundingClientRect();
+				const x = event.clientX || rect.left + rect.width / 2;
+				const y = event.clientY || rect.top + rect.height / 2;
+				const endRadius = Math.hypot(
+					Math.max(x, window.innerWidth - x),
+					Math.max(y, window.innerHeight - y)
+				);
+
+				root.classList.add('theme-vt');
+				const transition = document.startViewTransition(applyTheme);
+				transition.ready
+					.then(() => {
+						document.documentElement.animate(
+							{
+								clipPath: [
+									`circle(0px at ${x}px ${y}px)`,
+									`circle(${endRadius}px at ${x}px ${y}px)`,
+								],
+							},
+							{
+								duration: 500,
+								easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+								pseudoElement: '::view-transition-new(root)',
+							}
+						);
+					})
+					.catch(() => {});
+				transition.finished
+					.catch(() => {})
+					.finally(() => root.classList.remove('theme-vt'));
 			});
 		});
 
