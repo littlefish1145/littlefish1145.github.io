@@ -169,16 +169,6 @@ export const links: FriendLink[] = [
 		status: 'active',
 	},
 	{
-		name: 'RoL1n_SrP',
-		kind: 'github',
-		github: 'RolinShmily',
-		url: 'https://blog.srprolin.top/',
-		description:
-			'A personal tech blog sharing tutorials and hands-on experience, documenting every step of learning and tinkering.',
-		tags: ['Programming', 'DevOps', 'Config'],
-		status: 'active',
-	},
-	{
 		name: 'XJKang',
 		kind: 'github',
 		github: 'XJKang',
@@ -186,6 +176,16 @@ export const links: FriendLink[] = [
 		description:
 			'A personal tech blog focused on development notes, practical problem-solving, and steady long-term tinkering.',
 		tags: ['Programming', 'Engineering', 'Notes'],
+		status: 'active',
+	},
+	{
+		name: 'RoL1n_SrP',
+		kind: 'github',
+		github: 'RolinShmily',
+		url: 'https://blog.srprolin.top/',
+		description:
+			'A personal tech blog sharing tutorials and hands-on experience, documenting every step of learning and tinkering.',
+		tags: ['Programming', 'DevOps', 'Config'],
 		status: 'active',
 	},
 ];

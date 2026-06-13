@@ -4,7 +4,9 @@ import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
+import MeteorShower from '../../components/MeteorShower.astro';
 import MobileDrawer from '../../components/MobileDrawer.astro';
+import PageHeading from '../../components/PageHeading.astro';
 import PostCard from '../../components/PostCard.astro';
 import { SITE_TITLE } from '../../consts';
 
@@ -30,15 +32,14 @@ const currentView = 'important';
 		<BaseHead title={`Important Articles | ${SITE_TITLE} - Curated Technical Guides`} description="A curated selection of the most valuable articles on this blog. Find essential tutorials, guides, and technical notes worth reading." />
 	</head>
 	<body>
+		<MeteorShower density={0.4} heightVh={40} />
 		<Header />
 		<MobileDrawer />
 		<main class="page-shell page-fade-in py-10 md:py-14" transition:name="page-main" transition:animate="fade">
-			<section class="section-enter mx-auto max-w-4xl">
-				<div class="flex items-center justify-between">
-					<h1 class="font-sans text-3xl font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-100 md:text-4xl">
-						Important
-					</h1>
+			<section class="mx-auto max-w-4xl">
+				<PageHeading eyebrow="Writing" title="Blog" subtitle="Featured articles and essential reads.">
 					<!-- Segmented Control with 3 options -->
+					<div slot="actions">
 					<div
 						class="view-toggle inline-flex items-center rounded-2xl border border-zinc-200/80 bg-white/75 p-1 shadow-[0_8px_30px_rgba(15,23,42,0.06)] backdrop-blur-md dark:border-zinc-700/80 dark:bg-zinc-900/70"
 						role="tablist"
@@ -100,7 +101,7 @@ const currentView = 'important';
 						</a>
 					</div>
 				</div>
-				<p class="mt-2 font-sans text-zinc-500 dark:text-zinc-400">Featured articles and essential reads.</p>
+				</PageHeading>
 
 				<div class="mt-8 min-h-[24rem]">
 					<div role="tabpanel">
