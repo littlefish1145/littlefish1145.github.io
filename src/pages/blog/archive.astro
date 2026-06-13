@@ -129,32 +129,40 @@ const currentView = 'archive';
 
 				<div class="mt-8 min-h-[24rem]">
 					<div role="tabpanel" class="pb-8">
-						{archiveData?.map((yearData, yearIdx) => (
-							<div class="archive-year" style={`animation-delay: ${yearIdx * 80}ms`}>
-								<h2 class="mt-8 first:mt-0 text-2xl font-bold text-zinc-800 dark:text-zinc-200">{yearData.year}</h2>
+						{archiveData?.map((yearData, yearIdx) => {
+							const yearPosts = yearData.months.reduce((sum, m) => sum + m.posts.length, 0);
+							return (
+							<section class="archive-year" style={`animation-delay: ${yearIdx * 80}ms`}>
+								<div class="mt-10 flex items-baseline gap-3 first:mt-0">
+									<h2 class="font-sans text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{yearData.year}</h2>
+									<span class="text-sm font-medium text-zinc-400 dark:text-zinc-500">{yearPosts} {yearPosts === 1 ? 'post' : 'posts'}</span>
+									<span class="h-px flex-1 bg-gradient-to-r from-zinc-200 to-transparent dark:from-zinc-800"></span>
+								</div>
 								{yearData.months.map((monthData, monthIdx) => (
-									<div class="archive-month" style={`animation-delay: ${(yearIdx * 80) + (monthIdx * 40) + 40}ms`}>
-										<h3 class="mt-6 first:mt-4 text-lg font-semibold text-zinc-600 dark:text-zinc-400">
+									<div class="archive-month mt-6" style={`animation-delay: ${(yearIdx * 80) + (monthIdx * 40) + 40}ms`}>
+										<h3 class="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
+											<span class="h-1.5 w-1.5 rounded-full bg-[rgb(180,126,36)] dark:bg-[rgb(226,190,110)]"></span>
 											{monthData.name}
 										</h3>
-										<ul class="mt-3 space-y-3 border-l-2 border-zinc-200 dark:border-zinc-700 pl-4">
+										<ul class="space-y-1.5 border-l-2 border-zinc-200 pl-4 dark:border-zinc-800">
 											{monthData.posts.map((post, postIdx) => (
-												<li class="relative" style={`animation-delay: ${(yearIdx * 80) + (monthIdx * 40) + (postIdx * 20) + 80}ms`}>
-													<span class="absolute -left-[21px] top-2 h-2 w-2 rounded-full bg-zinc-300 dark:bg-zinc-600"></span>
+												<li class="archive-entry relative" style={`animation-delay: ${(yearIdx * 80) + (monthIdx * 40) + (postIdx * 20) + 80}ms`}>
+													<span class="archive-dot absolute -left-[21px] top-[1.15rem]"></span>
 													<a
 														href={`${BASE}blog/${post.id}/`}
-														class="block rounded-xl p-3 text-zinc-700 transition-all duration-200 hover:bg-zinc-100/85 hover:translate-x-0.5 dark:text-zinc-300 dark:hover:bg-zinc-800/85"
+														class="group block rounded-xl border border-transparent p-3 transition-all duration-200 hover:translate-x-0.5 hover:border-zinc-200 hover:bg-white/70 hover:shadow-sm dark:hover:border-zinc-800 dark:hover:bg-zinc-900/60"
 													>
-														<span class="font-medium">{post.data.title}</span>
-														<p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-1">{post.data.description}</p>
+														<span class="font-medium text-zinc-800 transition-colors group-hover:text-zinc-950 dark:text-zinc-200 dark:group-hover:text-zinc-50">{post.data.title}</span>
+														<p class="mt-1 text-sm text-zinc-500 line-clamp-1 dark:text-zinc-400">{post.data.description}</p>
 													</a>
 												</li>
 											))}
 										</ul>
 									</div>
 								))}
-							</div>
-						))}
+							</section>
+							);
+						})}
 					</div>
 				</div>
 			</section>
@@ -162,6 +170,32 @@ const currentView = 'archive';
 		<Footer />
 
 		<style is:global>
+			/* Timeline node: a hollow gold ring that fills as you hover the entry. */
+			.archive-dot {
+				width: 9px;
+				height: 9px;
+				border-radius: 9999px;
+				background: rgb(250 250 250);
+				border: 2px solid rgba(180, 126, 36, 0.55);
+				transition: background-color 180ms ease, border-color 180ms ease, transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+			}
+
+			html.dark .archive-dot {
+				background: rgb(9 9 11);
+				border-color: rgba(226, 190, 110, 0.5);
+			}
+
+			.archive-entry:hover .archive-dot {
+				background: rgb(180 126 36);
+				border-color: rgb(180 126 36);
+				transform: scale(1.18);
+			}
+
+			html.dark .archive-entry:hover .archive-dot {
+				background: rgb(226 190 110);
+				border-color: rgb(226 190 110);
+			}
+
 			@media (prefers-reduced-motion: reduce) {
 				.archive-year,
 				.archive-month {
@@ -169,6 +203,11 @@ const currentView = 'archive';
 					animation: none !important;
 					transform: none !important;
 					opacity: 1 !important;
+				}
+
+				.archive-dot,
+				.archive-entry:hover .archive-dot {
+					transition: none !important;
 				}
 			}
 		</style>

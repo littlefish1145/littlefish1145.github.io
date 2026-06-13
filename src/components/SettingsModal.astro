@@ -8,7 +8,7 @@
 	aria-hidden="true"
 >
 	<div
-		class="modal-content mx-4 w-[380px] rounded-xl bg-white p-6 shadow-xl transition-all duration-200 ease-out dark:bg-zinc-900 scale-95 opacity-0"
+		class="modal-content mx-4 w-[380px] rounded-[1.4rem] border border-zinc-200/85 bg-white/94 p-6 shadow-[0_28px_70px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-all duration-200 ease-out dark:border-zinc-800/85 dark:bg-zinc-900/94 scale-95 opacity-0"
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby="settings-modal-title"
@@ -30,13 +30,15 @@
 		</div>
 
 		<div class="flex flex-col items-center py-4">
-			<img
-				id="settings-avatar"
-				src="https://img.danarnoux.com/misc/DanArnoux.webp"
-				alt="User avatar"
-				class="h-20 w-20 rounded-full border-2 border-zinc-200 object-cover dark:border-zinc-700"
-			/>
-			<h3 id="settings-username" class="mt-3 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+			<span class="inline-flex rounded-full bg-gradient-to-br from-[rgb(226,190,110)] to-[rgb(180,126,36)] p-[3px] shadow-[0_10px_28px_rgba(180,126,36,0.28)]">
+				<img
+					id="settings-avatar"
+					src="https://img.danarnoux.com/misc/DanArnoux.webp"
+					alt="User avatar"
+					class="h-20 w-20 rounded-full border-2 border-white object-cover dark:border-zinc-900"
+				/>
+			</span>
+			<h3 id="settings-username" class="mt-3.5 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
 				User
 			</h3>
 			<p id="settings-login" class="text-sm text-zinc-500 dark:text-zinc-400">
@@ -57,18 +59,18 @@
 				Admin Dashboard
 			</a>
 
-			<div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+			<div class="rounded-2xl border border-zinc-200/80 bg-white/50 p-4 dark:border-zinc-800/80 dark:bg-zinc-950/30">
 				<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Avatar URL</p>
 				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Paste an image URL. We display avatars as a centered 1:1 crop automatically.</p>
 				<input
 					id="settings-avatar-url"
 					type="url"
 					placeholder="https://example.com/avatar.png"
-					class="mt-3 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+					class="field-input mt-3"
 				/>
 			</div>
 
-			<div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+			<div class="rounded-2xl border border-zinc-200/80 bg-white/50 p-4 dark:border-zinc-800/80 dark:bg-zinc-950/30">
 				<p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Username</p>
 				<p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Display name shown on your comments. 2-30 characters. Will be reviewed by AI.</p>
 				<input
@@ -77,7 +79,7 @@
 					placeholder="Your username"
 					minlength="2"
 					maxlength="30"
-					class="mt-3 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+					class="field-input mt-3"
 				/>
 			</div>
 
@@ -87,16 +89,16 @@
 				<button
 					type="button"
 					id="settings-save"
-					class="flex-1 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+					class="flex-1 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(24,24,27,0.16)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-zinc-700 active:translate-y-0 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
 				>
 					Save
 				</button>
 				<button
 					type="button"
 					id="settings-reset"
-					class="rounded-lg border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+					class="apple-float-chip rounded-xl border border-zinc-200/85 bg-white/72 px-4 py-2.5 text-sm font-medium text-zinc-600 shadow-[0_8px_18px_rgba(15,23,42,0.04)] transition dark:border-zinc-700/85 dark:bg-zinc-900/62 dark:text-zinc-300"
 				>
-					Reset
+					<span class="apple-float-label">Reset</span>
 				</button>
 			</div>
 		</div>

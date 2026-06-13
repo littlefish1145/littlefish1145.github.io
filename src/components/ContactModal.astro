@@ -13,9 +13,12 @@
 		aria-modal="true"
 		aria-labelledby="contact-modal-title"
 	>
-		<h2 id="contact-modal-title" class="mb-6 text-center text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-			Contact Me
-		</h2>
+		<div class="mb-6 text-center">
+			<h2 id="contact-modal-title" class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+				Contact Me
+			</h2>
+			<span class="mx-auto mt-2 block h-px w-10 bg-gradient-to-r from-transparent via-[rgb(180,126,36)] to-transparent dark:via-[rgb(226,190,110)]"></span>
+		</div>
 
 		<form id="contact-form" class="space-y-3" method="post">
 			<input
@@ -24,7 +27,7 @@
 				name="name"
 				placeholder="Your name"
 				required
-				class="w-full rounded-lg border border-zinc-200 px-4 py-3 text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+				class="field-input"
 			/>
 			<input
 				type="email"
@@ -32,7 +35,7 @@
 				name="email"
 				placeholder="Your email address"
 				required
-				class="w-full rounded-lg border border-zinc-200 px-4 py-3 text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+				class="field-input"
 			/>
 			<textarea
 				id="contact-message-input"
@@ -40,7 +43,7 @@
 				placeholder="Your message"
 				required
 				rows="4"
-				class="w-full rounded-lg border border-zinc-200 px-4 py-3 text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 resize-none"
+				class="field-input resize-none leading-6"
 			></textarea>
 			<p class="text-xs text-zinc-400 dark:text-zinc-500">Please ensure your message is constructive. All messages will be reviewed before being sent.</p>
 			<div id="contact-turnstile-container" data-sitekey="0x4AAAAAACuzV-RCNNfHJxdF"></div>

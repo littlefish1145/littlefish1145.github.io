@@ -553,7 +553,19 @@ const cfWebAnalyticsToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
 				// Route swaps can reset the <html> class attribute, so re-assert before scanning.
 				document.documentElement.classList.add('js-reveal');
 				const io = ensureObserver();
-				document.querySelectorAll('[data-reveal]:not(.revealed)').forEach((el) => io.observe(el));
+				const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+				document.querySelectorAll('[data-reveal]:not(.revealed)').forEach((el) => {
+					// Reveal anything already in (or above) the viewport right away, so
+					// content never stays hidden if the IntersectionObserver callback is
+					// throttled (e.g. background tabs). Below-the-fold elements still
+					// animate in on scroll via the observer.
+					const rect = el.getBoundingClientRect();
+					if (rect.top < vh * 0.95 && rect.bottom > -1) {
+						el.classList.add('revealed');
+					} else {
+						io.observe(el);
+					}
+				});
 			};
 
 			if (document.readyState === 'loading') {

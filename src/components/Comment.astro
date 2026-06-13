@@ -9,24 +9,38 @@ const { postSlug } = Astro.props;
 ---
 
 <section class="comments-section mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-700">
-	<h2 class="mb-6 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Comments</h2>
+	<div class="mb-6 flex items-center gap-3">
+		<span class="h-px w-7 bg-gradient-to-r from-[rgb(180,126,36)] to-transparent dark:from-[rgb(226,190,110)]"></span>
+		<h2 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Comments</h2>
+		<span
+			data-comment-count
+			class="hidden rounded-full border border-zinc-200/80 bg-zinc-50/90 px-2.5 py-0.5 text-xs font-semibold text-zinc-500 dark:border-zinc-700/80 dark:bg-zinc-900/80 dark:text-zinc-400"
+		></span>
+	</div>
 
-	<div id="comment-form-container" class="mt-8">
+	<div id="comment-form-container" class="mt-6">
 		<!-- Show login prompt when not logged in -->
 		<div id="login-prompt" class="hidden">
-			<p class="text-zinc-600 dark:text-zinc-400">
-				<a href={`${API_BASE}/api/auth/github/start`} class="text-blue-600 hover:underline dark:text-blue-400">
+			<div class="flex flex-col items-start gap-3 rounded-2xl border border-zinc-200/80 bg-white/70 p-5 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800/80 dark:bg-zinc-950/50">
+				<p class="m-0 text-sm text-zinc-600 dark:text-zinc-300">Join the conversation — sign in to leave a comment.</p>
+				<a
+					href={`${API_BASE}/api/auth/github/start`}
+					class="inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_10px_24px_rgba(24,24,27,0.18)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+				>
+					<svg viewBox="0 0 24 24" class="h-4 w-4 fill-current" aria-hidden="true">
+						<path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.523 2 12 2z" />
+					</svg>
 					Login with GitHub
 				</a>
-				to comment
-			</p>
+			</div>
 		</div>
 
 		<!-- Comment form - visible when logged in -->
-		<form id="comment-form" class="hidden space-y-4">
-			<div id="reply-to-indicator" class="hidden text-sm text-zinc-500 dark:text-zinc-400">
-				Replying to: <span id="reply-to-name"></span>
-				<button type="button" id="cancel-reply" class="ml-2 text-blue-600 hover:underline dark:text-blue-400">Cancel</button>
+		<form id="comment-form" class="hidden space-y-3 rounded-2xl border border-zinc-200/80 bg-white/65 p-5 backdrop-blur-sm dark:border-zinc-800/80 dark:bg-zinc-950/45">
+			<div id="reply-to-indicator" class="hidden [&:not(.hidden)]:flex items-center gap-2 rounded-lg border border-[rgba(180,126,36,0.3)] bg-[rgba(180,126,36,0.07)] px-3 py-1.5 text-sm text-zinc-600 dark:border-[rgba(226,190,110,0.3)] dark:bg-[rgba(226,190,110,0.09)] dark:text-zinc-300">
+				<svg viewBox="0 0 20 20" class="h-3.5 w-3.5 text-[rgb(180,126,36)] dark:text-[rgb(226,190,110)]" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 4 4 9l5 5M4 9h8a4 4 0 0 1 4 4v3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+				Replying to <span id="reply-to-name" class="font-semibold text-zinc-800 dark:text-zinc-100"></span>
+				<button type="button" id="cancel-reply" class="ml-1 text-zinc-400 transition-colors hover:text-zinc-700 dark:hover:text-zinc-200">Cancel</button>
 			</div>
 			<textarea
 				id="comment-content"
@@ -34,23 +48,23 @@ const { postSlug } = Astro.props;
 				rows="4"
 				required
 				placeholder="Write a comment..."
-				class="w-full rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+				class="field-input resize-y leading-6"
 			></textarea>
-			<p class="text-xs text-zinc-400 dark:text-zinc-500">Please post constructive comments. All content will be reviewed by AI before display.</p>
-			<div class="flex items-center justify-between">
+			<div class="flex items-center justify-between gap-3">
+				<p class="m-0 text-xs text-zinc-400 dark:text-zinc-500">Constructive only — reviewed by AI before display.</p>
 				<button
 					type="submit"
-					class="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+					class="shrink-0 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(24,24,27,0.16)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-zinc-700 active:translate-y-0 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
 				>
-					Submit Comment
+					Post
 				</button>
-				<span id="daily-limit-msg" class="hidden text-sm text-zinc-500 dark:text-zinc-400"></span>
 			</div>
+			<span id="daily-limit-msg" class="hidden text-sm text-rose-500 dark:text-rose-400"></span>
 		</form>
 	</div>
 
 	<!-- Comments list -->
-	<div id="comments-container" class="mt-8 space-y-6" data-comments-container data-post-slug={postSlug}></div>
+	<div id="comments-container" class="mt-8 space-y-5" data-comments-container data-post-slug={postSlug}></div>
 </section>
 
 <script>
@@ -120,43 +134,66 @@ const { postSlug } = Astro.props;
 		const commentBody = escapeHtml(comment.content || comment.body || '');
 		const replyCount = comment.replies?.length || 0;
 		const replyButton = !isReply && currentUser
-			? `<button class="reply-btn text-sm text-blue-600 hover:underline dark:text-blue-400" data-comment-id="${commentId}" data-user-name="${userName}">Reply</button>`
+			? `<button class="reply-btn inline-flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-[rgb(180,126,36)] dark:text-zinc-500 dark:hover:text-[rgb(226,190,110)]" data-comment-id="${commentId}" data-user-name="${userName}"><svg viewBox="0 0 20 20" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 4 4 9l5 5M4 9h8a4 4 0 0 1 4 4v3" stroke-linecap="round" stroke-linejoin="round"/></svg>Reply</button>`
 			: '';
 
 		return `
-			<div class="flex gap-4 ${isReply ? 'ml-8 mt-4' : ''}">
+			<div class="flex gap-3.5">
 				<img
 					src="${avatarUrl}"
 					alt="${userName} avatar"
-					class="h-10 w-10 shrink-0 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
+					class="h-9 w-9 shrink-0 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
 				/>
 				<div class="min-w-0 flex-1">
 					<div class="flex items-center gap-2 flex-wrap">
-						<span class="font-medium text-zinc-900 dark:text-zinc-100">${userName}</span>
-						<span class="text-sm text-zinc-500 dark:text-zinc-400">${formatRelativeTime(comment.createdAt || comment.created_at || '')}</span>
-						${comment.status === 'pending' ? '<span class="text-xs text-yellow-600">(pending)</span>' : ''}
+						<span class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">${userName}</span>
+						<span class="text-xs text-zinc-400 dark:text-zinc-500">${formatRelativeTime(comment.createdAt || comment.created_at || '')}</span>
+						${comment.status === 'pending' ? '<span class="rounded-full bg-amber-100/80 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-400/15 dark:text-amber-300">Pending</span>' : ''}
 					</div>
-					<p class="mt-1 text-zinc-700 dark:text-zinc-300">${commentBody}</p>
-					<div class="mt-1 flex items-center gap-3">
+					<p class="mt-1 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300 [overflow-wrap:anywhere]">${commentBody}</p>
+					<div class="mt-1.5 flex items-center gap-3">
 						${replyButton}
-						${replyCount > 0 ? `<span class="text-sm text-zinc-500 dark:text-zinc-400">${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}</span>` : ''}
+						${replyCount > 0 ? `<span class="text-xs text-zinc-400 dark:text-zinc-500">${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}</span>` : ''}
 					</div>
 				</div>
 			</div>
-			${comment.replies?.length ? `<div class="replies-container">${comment.replies.map((reply) => renderComment(reply, true)).join('')}</div>` : ''}
+			${comment.replies?.length ? `<div class="replies-container mt-3.5 ml-4 space-y-3.5 border-l border-zinc-200 pl-4 dark:border-zinc-800">${comment.replies.map((reply) => renderComment(reply, true)).join('')}</div>` : ''}
 		`;
 	};
+
+	const countAll = (comments: CommentData[]): number =>
+		comments.reduce((sum, c) => sum + 1 + (c.replies ? countAll(c.replies) : 0), 0);
 
 	const renderComments = (comments: CommentData[]) => {
 		const container = document.getElementById('comments-container');
 		if (!container) return;
 
+		const countBadge = document.querySelector('[data-comment-count]');
+		const total = comments ? countAll(comments) : 0;
+		if (countBadge) {
+			if (total > 0) {
+				countBadge.textContent = String(total);
+				countBadge.classList.remove('hidden');
+			} else {
+				countBadge.classList.add('hidden');
+			}
+		}
+
 		if (!comments || comments.length === 0) {
-			container.innerHTML = '<p class="text-zinc-500 dark:text-zinc-400">No comments yet. Be the first to comment!</p>';
+			container.innerHTML = `
+				<div class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-zinc-200 py-10 text-center dark:border-zinc-800">
+					<svg viewBox="0 0 24 24" class="h-8 w-8 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					<p class="m-0 text-sm text-zinc-500 dark:text-zinc-400">No comments yet — be the first to share a thought.</p>
+				</div>`;
 			return;
 		}
 
-		container.innerHTML = comments.map(c => renderComment(c)).join('');
+		container.innerHTML = comments
+			.map(
+				(c) =>
+					`<div class="card-spotlight group relative rounded-2xl border border-zinc-200/70 bg-white/55 p-4 transition-colors duration-200 hover:border-zinc-300/80 dark:border-zinc-800/70 dark:bg-zinc-950/40 dark:hover:border-zinc-700/80">${renderComment(c)}</div>`
+			)
+			.join('');
 		attachReplyHandlers();
 	};
 
