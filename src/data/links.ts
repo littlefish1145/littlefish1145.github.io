@@ -32,6 +32,25 @@ export const links: FriendLink[] = [
 		status: 'active',
 	},
 	{
+		name: 'Lumera',
+		kind: 'project',
+		url: 'https://lumera.danarnoux.com/',
+		avatar: 'image/lumera-logo.svg',
+		description: 'An online multiplayer card game built around bluffing and call-the-liar challenge mechanics.',
+		tags: ['Game', 'Multiplayer', 'Cards'],
+		status: 'active',
+	},
+	{
+		name: 'Babel',
+		kind: 'project',
+		url: 'https://github.com/Dancncn/babel-window-translator',
+		avatar: 'image/babel-icon.png',
+		description:
+			'A frameless, always-on-top translation sidebar for Windows — translate what you type, copy, or see on screen, without leaving your chat window.',
+		tags: ['Windows', 'Translation', 'Desktop'],
+		status: 'active',
+	},
+	{
 		name: 'Kymi',
 		kind: 'github',
 		github: 'kymi1723',
