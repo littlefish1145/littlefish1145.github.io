@@ -13,14 +13,14 @@ export type FriendLink = {
 
 export const links: FriendLink[] = [
 	{
-		name: 'DanArnoux',
+		name: 'Amira',
 		kind: 'github',
-		github: 'Dancncn',
-		url: 'https://github.com/Dancncn',
+		github: 'littlefish1145',
+		url: 'https://github.com/littlefish1145',
 		bilibili: 'https://space.bilibili.com/435440676',
 		description:
-			'Engineer and researcher-in-training, sharing research notes, technical essays, and practical engineering workflows.',
-		tags: ['Research', 'Engineering', 'Notes'],
+			'来杯好茶摇一摇',
+		tags: ['Blog', 'Tech'],
 		status: 'active',
 	},
 	{
