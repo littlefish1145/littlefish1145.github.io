@@ -2,24 +2,13 @@
 
 <script is:inline>
 	(function() {
-		const THEME_MAP = {
-			light: 'light',
-			dark: 'dark',
-		};
-
 		function getGiscusTheme() {
-			const isDark = document.documentElement.classList.contains('dark');
-			return isDark ? THEME_MAP.dark : THEME_MAP.light;
+			return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 		}
 
-		let giscusLoaded = false;
-
 		function loadGiscus() {
-			if (giscusLoaded) return;
-			giscusLoaded = true;
-
 			const container = document.getElementById('giscus-container');
-			if (!container) return;
+			if (!container || container.querySelector('iframe.giscus-frame')) return;
 
 			const script = document.createElement('script');
 			script.src = 'https://giscus.app/client.js';
@@ -42,15 +31,20 @@
 		function updateGiscusTheme() {
 			const iframe = document.querySelector('iframe.giscus-frame');
 			if (!iframe) return;
+			const theme = getGiscusTheme();
 			iframe.contentWindow?.postMessage({
-				giscus: { setConfig: { theme: getGiscusTheme() } }
+				giscus: { setConfig: { theme: theme } }
 			}, 'https://giscus.app');
 		}
 
+		let pendingUpdate = false;
 		const observer = new MutationObserver(() => {
-			if (giscusLoaded) {
+			if (pendingUpdate) return;
+			pendingUpdate = true;
+			requestAnimationFrame(() => {
+				pendingUpdate = false;
 				updateGiscusTheme();
-			}
+			});
 		});
 
 		observer.observe(document.documentElement, {
@@ -60,8 +54,7 @@
 
 		function init() {
 			const container = document.getElementById('giscus-container');
-			if (!container || container.dataset.giscusInit) return;
-			container.dataset.giscusInit = 'true';
+			if (!container) return;
 			loadGiscus();
 		}
 
