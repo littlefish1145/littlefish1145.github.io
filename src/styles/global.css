@@ -1991,7 +1991,7 @@ html.dark .back-to-top-progress {
 	stroke-width: 7;
 	stroke-linecap: round;
 	stroke-linejoin: round;
-	stroke-dasharray: 322;
+	stroke-dasharray: 400;
 	stroke-dashoffset: 0;
 	animation: brand-draw 1300ms cubic-bezier(0.45, 0, 0.2, 1) 150ms both;
 }
@@ -2010,7 +2010,7 @@ h1:hover .brand-mark .brand-mark-path {
 
 @keyframes brand-draw {
 	from {
-		stroke-dashoffset: 322;
+		stroke-dashoffset: 400;
 	}
 	to {
 		stroke-dashoffset: 0;
@@ -2019,7 +2019,7 @@ h1:hover .brand-mark .brand-mark-path {
 
 @keyframes brand-draw-again {
 	from {
-		stroke-dashoffset: 322;
+		stroke-dashoffset: 400;
 	}
 	to {
 		stroke-dashoffset: 0;
